@@ -48,6 +48,13 @@
 // Standard string class
 #include <string>
 
+#ifdef _UNICODE
+#	define ENUM_STRING_PREFIX(str)	L ## str
+#	define ENUM_STRING_TYPE			std::wstring
+#else
+#	define ENUM_STRING_PREFIX(str)	str
+#	define ENUM_STRING_TYPE			std::string
+#endif
 
 #if defined(IMPROVED_ENUM_SUBCLASS_PARENT)
 
@@ -86,21 +93,21 @@ namespace IMPROVED_ENUM_NAME
 
 	//! Some stuff to get the string of the IMPROVED_ENUM_NAME
 	///////////////////////////////////////////////////////////
-	#define GET_MACRO_STRING_EXPANDED(Macro)  #Macro
+	#define GET_MACRO_STRING_EXPANDED(Macro)  ENUM_STRING_PREFIX(#Macro)
 	#define GET_MACRO_STRING(Macro)  GET_MACRO_STRING_EXPANDED(Macro)
-	#define ENUM_SEPARATOR  "::"
+	#define ENUM_SEPARATOR  ENUM_STRING_PREFIX("::")
 	#define ENUM_TYPE_NAME  GET_MACRO_STRING(IMPROVED_ENUM_NAME)
-	STATIC_METHOD inline const std::string EnumSeparator() { return ENUM_SEPARATOR; }
-	STATIC_METHOD inline const std::string EnumTypeName() { return ENUM_TYPE_NAME; }
+	STATIC_METHOD inline const ENUM_STRING_TYPE EnumSeparator() { return ENUM_SEPARATOR; }
+	STATIC_METHOD inline const ENUM_STRING_TYPE EnumTypeName() { return ENUM_TYPE_NAME; }
 	#ifdef  IMPROVED_ENUM_INHERITED_NAME
 	#define PARENT_ENUM_TYPE_NAME  GET_MACRO_STRING(IMPROVED_ENUM_INHERITED_NAME)
 	#define FULL_ENUM_TYPE_NAME    PARENT_ENUM_TYPE_NAME  ENUM_SEPARATOR  ENUM_TYPE_NAME
 	#else //IMPROVED_ENUM_INHERITED_NAME
-	#define PARENT_ENUM_TYPE_NAME  ""
+	#define PARENT_ENUM_TYPE_NAME  ENUM_STRING_PREFIX("")
 	#define FULL_ENUM_TYPE_NAME    ENUM_TYPE_NAME
 	#endif//IMPROVED_ENUM_INHERITED_NAME
-	STATIC_METHOD inline const std::string ParentEnumTypeName() { return PARENT_ENUM_TYPE_NAME; }
-	STATIC_METHOD inline const std::string FullEnumTypeName() { return FULL_ENUM_TYPE_NAME; }
+	STATIC_METHOD inline const ENUM_STRING_TYPE ParentEnumTypeName() { return PARENT_ENUM_TYPE_NAME; }
+	STATIC_METHOD inline const ENUM_STRING_TYPE FullEnumTypeName() { return FULL_ENUM_TYPE_NAME; }
 
 
 	//! This defines the enumerated type:
@@ -128,14 +135,14 @@ namespace IMPROVED_ENUM_NAME
 
 	//! Conversion from enum to string:
 	//////////////////////////////////////////
-	STATIC_METHOD inline const std::string Enum2String(const EnumType& t)
+	STATIC_METHOD inline const ENUM_STRING_TYPE Enum2String(const EnumType& t)
 	{
 		switch (t)
 		{
 		//////////////////////////////////////////
 		// With this mini-macro we make ENUMITEM file/s
 		// a CASE list which returns the stringized value:
-		#define  ENUMITEM(EnumItem) case EnumItem : return #EnumItem;
+		#define  ENUMITEM(EnumItem) case EnumItem : return ENUM_STRING_PREFIX(#EnumItem);
 		#define  ENUMITEM_VALUE(EnumItem, Value) ENUMITEM(EnumItem)
 		#ifdef   IMPROVED_ENUM_INHERITED_FILE
 		#include IMPROVED_ENUM_INHERITED_FILE
@@ -149,19 +156,19 @@ namespace IMPROVED_ENUM_NAME
 		#undef   ENUMITEM
 		//////////////////////////////////////////
 		}
-		return ""; // NotValidEnumItem
+		return ENUM_STRING_PREFIX(""); // NotValidEnumItem
 	}
 
 	//! Conversion from enum to full string (namespace::string):
 	/////////////////////////////////////////////////////////////
-	STATIC_METHOD inline const std::string Enum2FullString(const EnumType& t)
+	STATIC_METHOD inline const ENUM_STRING_TYPE Enum2FullString(const EnumType& t)
 	{
 		switch (t)
 		{
 		//////////////////////////////////////////
 		// With this mini-macro we make ENUMITEM file/s
 		// a CASE list which returns the stringized value:
-		#define  ENUMITEM(EnumItem) case EnumItem : return  FULL_ENUM_TYPE_NAME  ENUM_SEPARATOR  #EnumItem;
+		#define  ENUMITEM(EnumItem) case EnumItem : return  FULL_ENUM_TYPE_NAME  ENUM_SEPARATOR  ENUM_STRING_PREFIX(#EnumItem);
 		#define  ENUMITEM_VALUE(EnumItem, Value) ENUMITEM(EnumItem)
 		#ifdef   IMPROVED_ENUM_INHERITED_FILE
 		#include IMPROVED_ENUM_INHERITED_FILE
@@ -175,18 +182,18 @@ namespace IMPROVED_ENUM_NAME
 		#undef   ENUMITEM
 		//////////////////////////////////////////
 		}
-		return ""; // NotValidEnumItem
+		return ENUM_STRING_PREFIX(""); // NotValidEnumItem
 	}
 
 	//! Conversion from string to enum:
 	//////////////////////////////////////////
-	STATIC_METHOD inline const EnumType String2Enum(const std::string& s)
+	STATIC_METHOD inline const EnumType String2Enum(const ENUM_STRING_TYPE& s)
 	{
-		if (s == "") return NotValidEnumItem;
+		if (s.empty()) return NotValidEnumItem;
 		//////////////////////////////////////////
 		// With this mini-macro we make ENUMITEM file/s
 		// an IF list which returns the enum item:
-		#define  ENUMITEM(EnumItem) if (s == #EnumItem) return EnumItem;
+		#define  ENUMITEM(EnumItem) if (s == ENUM_STRING_PREFIX(#EnumItem)) return EnumItem;
 		#define  ENUMITEM_VALUE(EnumItem, Value) ENUMITEM(EnumItem)
 		#ifdef   IMPROVED_ENUM_INHERITED_FILE
 		#include IMPROVED_ENUM_INHERITED_FILE
@@ -204,13 +211,13 @@ namespace IMPROVED_ENUM_NAME
 
 	//! Conversion from full string (namespace::string) to enum:
 	/////////////////////////////////////////////////////////////
-	STATIC_METHOD inline const EnumType FullString2Enum(const std::string& s)
+	STATIC_METHOD inline const EnumType FullString2Enum(const ENUM_STRING_TYPE& s)
 	{
-		if (s == "") return NotValidEnumItem;
+		if (s.empty()) return NotValidEnumItem;
 		//////////////////////////////////////////
 		// With this mini-macro we make ENUMITEM file/s
 		// an IF list which returns the enum item:
-		#define  ENUMITEM(EnumItem) if (s ==  FULL_ENUM_TYPE_NAME  ENUM_SEPARATOR  #EnumItem) return EnumItem;
+		#define  ENUMITEM(EnumItem) if (s ==  FULL_ENUM_TYPE_NAME  ENUM_SEPARATOR ENUM_STRING_PREFIX(#EnumItem)) return EnumItem;
 		#define  ENUMITEM_VALUE(EnumItem, Value) ENUMITEM(EnumItem)
 		#ifdef   IMPROVED_ENUM_INHERITED_FILE
 		#include IMPROVED_ENUM_INHERITED_FILE
@@ -521,4 +528,3 @@ namespace IMPROVED_ENUM_NAME
 #undef IMPROVED_ENUM_INHERITED_NAME
 #undef IMPROVED_ENUM_INHERITED_FILE
 // Do not use directives like: #endif // _IMPROVED_ENUM_H_ (reason above)
-

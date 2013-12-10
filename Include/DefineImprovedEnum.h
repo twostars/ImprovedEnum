@@ -518,6 +518,13 @@ namespace IMPROVED_ENUM_NAME
 ;
 #endif
 
+// Define the enum type for simplicity (eEnumName)
+#define MACRO_CONCAT(a, b) a ## b
+#define DEFINE_ENUM_TYPE(name) typedef name::EnumTypeTag MACRO_CONCAT(e, name)
+DEFINE_ENUM_TYPE(IMPROVED_ENUM_NAME);
+#undef MACRO_CONCAT
+#undef DEFINE_ENUM_TYPE
+
 // Free this file's parameters:
 ////////////////////////////////
 #undef IMPROVED_ENUM_NAME

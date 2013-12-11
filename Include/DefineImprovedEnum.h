@@ -525,6 +525,9 @@ DEFINE_ENUM_TYPE(IMPROVED_ENUM_NAME);
 #undef MACRO_CONCAT
 #undef DEFINE_ENUM_TYPE
 
+#undef ENUM_STRING_PREFIX
+#undef ENUM_STRING_TYPE
+
 // Free this file's parameters:
 ////////////////////////////////
 #undef IMPROVED_ENUM_NAME

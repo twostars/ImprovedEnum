@@ -45,16 +45,22 @@
 #error ENUMITEM_VALUE macro cannot be already defined
 #endif
 
+// When not set, use the default comparison for the string types (case-sensitive)
+#if !defined(IMPROVED_ENUM_COMPARATOR)
+#	define ENUM_USE_DEFAULT_COMPARISON
+#endif
+
 // Standard string class
 #include <string>
 
-#ifdef _UNICODE
+#if defined(UNICODE)
 #	define ENUM_STRING_PREFIX(str)	L ## str
 #	define ENUM_STRING_TYPE			std::wstring
 #else
 #	define ENUM_STRING_PREFIX(str)	str
 #	define ENUM_STRING_TYPE			std::string
 #endif
+
 
 #if defined(IMPROVED_ENUM_SUBCLASS_PARENT)
 
@@ -193,7 +199,17 @@ namespace IMPROVED_ENUM_NAME
 		//////////////////////////////////////////
 		// With this mini-macro we make ENUMITEM file/s
 		// an IF list which returns the enum item:
-		#define  ENUMITEM(EnumItem) if (s == ENUM_STRING_PREFIX(#EnumItem)) return EnumItem;
+
+		#if defined(ENUM_USE_DEFAULT_COMPARISON)
+			#define  ENUMITEM(EnumItem) \
+				if (s == ENUM_STRING_PREFIX(#EnumItem)) \
+					return EnumItem;
+		#else
+			#define  ENUMITEM(EnumItem) \
+				if (IMPROVED_ENUM_COMPARATOR(s.c_str(), ENUM_STRING_PREFIX(#EnumItem)) == 0) \
+					return EnumItem;
+		#endif
+
 		#define  ENUMITEM_VALUE(EnumItem, Value) ENUMITEM(EnumItem)
 		#ifdef   IMPROVED_ENUM_INHERITED_FILE
 		#include IMPROVED_ENUM_INHERITED_FILE
@@ -217,7 +233,17 @@ namespace IMPROVED_ENUM_NAME
 		//////////////////////////////////////////
 		// With this mini-macro we make ENUMITEM file/s
 		// an IF list which returns the enum item:
-		#define  ENUMITEM(EnumItem) if (s ==  FULL_ENUM_TYPE_NAME  ENUM_SEPARATOR ENUM_STRING_PREFIX(#EnumItem)) return EnumItem;
+
+		#if defined(ENUM_USE_DEFAULT_COMPARISON)
+			#define  ENUMITEM(EnumItem) \
+				if (s == FULL_ENUM_TYPE_NAME ENUM_SEPARATOR ENUM_STRING_PREFIX(#EnumItem)) \
+					return EnumItem;
+		#else
+			#define  ENUMITEM(EnumItem) \
+				if (IMPROVED_ENUM_COMPARATOR(s.c_str(), FULL_ENUM_TYPE_NAME ENUM_SEPARATOR ENUM_STRING_PREFIX(#EnumItem))) \
+					return EnumItem;
+		#endif
+
 		#define  ENUMITEM_VALUE(EnumItem, Value) ENUMITEM(EnumItem)
 		#ifdef   IMPROVED_ENUM_INHERITED_FILE
 		#include IMPROVED_ENUM_INHERITED_FILE
@@ -527,9 +553,11 @@ DEFINE_ENUM_TYPE(IMPROVED_ENUM_NAME);
 
 #undef ENUM_STRING_PREFIX
 #undef ENUM_STRING_TYPE
+#undef ENUM_USE_DEFAULT_COMPARISON
 
 // Free this file's parameters:
 ////////////////////////////////
+#undef IMPROVED_ENUM_COMPARATOR
 #undef IMPROVED_ENUM_NAME
 #undef IMPROVED_ENUM_FILE
 #undef IMPROVED_ENUM_LIST

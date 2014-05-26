@@ -193,7 +193,7 @@ namespace IMPROVED_ENUM_NAME
 
 	//! Conversion from string to enum:
 	//////////////////////////////////////////
-	STATIC_METHOD inline const EnumType String2Enum(const ENUM_STRING_TYPE& s)
+	STATIC_METHOD inline const EnumType String2Enum(const ENUM_STRING_TYPE& s, EnumType defaultValue = NotValidEnumItem)
 	{
 		if (s.empty()) return NotValidEnumItem;
 		//////////////////////////////////////////
@@ -222,7 +222,7 @@ namespace IMPROVED_ENUM_NAME
 		#undef   ENUMITEM_VALUE
 		#undef   ENUMITEM
 		//////////////////////////////////////////
-		return NotValidEnumItem;
+		return defaultValue;
 	}
 
 	//! Conversion from full string (namespace::string) to enum:
